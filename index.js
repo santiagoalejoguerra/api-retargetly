@@ -13,4 +13,4 @@ app.use(bodyParser.json());
 
 app.use('/', api);
 
-app.listen(port, console.log("Listening port ", port));
+app.listen(port, console.log("Listening port", port));
