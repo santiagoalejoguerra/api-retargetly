@@ -3,21 +3,29 @@ const File = require('../Models/File');
 
 const PATH_RESOURCES = "./Resources/files/";
 
-const readFiles = () => {
+const sftpService = require('../RemoteServices/SftpService');
 
-    const files = getFiles();
+const readFiles = async () => {
+
+    const files = await sftpService.getFiles();
 
     let fileInfo;
 
     const arrayFiles = [];
 
-    files.forEach(file =>  {
-        
-        fileInfo = new File(file, getSizeByFile(file));
+    if (files !== null) {
+    
+        files.forEach(file =>  {
+            
+            fileInfo = new File(file.name, file.size);
+    
+            arrayFiles.push(fileInfo);
+    
+        });
+    
+        console.log(arrayFiles);
 
-        arrayFiles.push(fileInfo);
-
-    })
+    }
 
     return arrayFiles;
 
@@ -25,14 +33,6 @@ const readFiles = () => {
 
 const getFiles = () => {
     return fs.readdirSync(PATH_RESOURCES);
-}
-
-const getSizeByFile = file => {
-
-    const statFile = getFile(file);
-
-    return statFile.size;
-
 }
 
 const getFile = file => fs.statSync(PATH_RESOURCES + file);

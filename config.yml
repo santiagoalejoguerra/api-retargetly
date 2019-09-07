@@ -1,0 +1,11 @@
+mysql:
+  database: retargetly
+  user: root
+  password: root
+  host: localhost
+  dialect: mysql
+sftp:
+  url: input.retargetly.com
+  path: /files/
+  user: exercises
+  password: gQ6gT72I8bmY
