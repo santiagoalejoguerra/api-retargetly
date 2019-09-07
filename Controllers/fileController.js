@@ -1,13 +1,19 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+
+const fileService = require('../Services/FileService');
+
+const ResponseFileList = require('../Models/ResponseFilesList');
 
 router.get('/list', (req, res) => {
 
     // TODO verificar que esté bien así
     const humanreadable = req.query.humanreadable === 'true';
 
+    var filesInfoResponse = new ResponseFileList(fileService.readFiles(), humanreadable);
+
     res.status(200).json({
-        response: { humanreadable }
+        response: filesInfoResponse.response()
     });
 });
 
