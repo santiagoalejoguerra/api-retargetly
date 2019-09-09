@@ -1,9 +1,9 @@
 const express = require('express');
 const api = express.Router();
 
-const userController = require('../Controllers/userController.js');
-const dataController = require('../Controllers/dataController.js');
-const fileController = require('../Controllers/fileController.js');
+const userController = require('../Controllers/UserController.js');
+const dataController = require('../Controllers/DataController.js');
+const fileController = require('../Controllers/FileController.js');
 
 api.use('/', userController);
 

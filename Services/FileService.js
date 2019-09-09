@@ -1,9 +1,12 @@
 const fs = require('fs');
-const File = require('../Models/File');
-
-const PATH_RESOURCES = "./Resources/files/";
+const csv = require('csv');
 
 const sftpService = require('../RemoteServices/SftpService');
+
+const File = require('../Models/File');
+
+const PERSONS_INFORMATION_PATH = __dirname + '/../Resources/';
+const PERSONS_INFORMATION_FILE = 'personsInformation.csv';
 
 const readFiles = async () => {
 
@@ -22,8 +25,6 @@ const readFiles = async () => {
             arrayFiles.push(fileInfo);
     
         });
-    
-        console.log(arrayFiles);
 
     }
 
@@ -31,12 +32,42 @@ const readFiles = async () => {
 
 }
 
-const getFiles = () => {
-    return fs.readdirSync(PATH_RESOURCES);
+const readPersonsInformationCsv = async () => {
+
+    const data = await getPersonsInformationPromise();
+
+    if (data !== null ) {
+
+        return data;
+
+    }
+
+    return [];
+
 }
 
-const getFile = file => fs.statSync(PATH_RESOURCES + file);
+const getPersonsInformationPromise = () => new Promise(resolve => {
+
+    const file = PERSONS_INFORMATION_PATH + PERSONS_INFORMATION_FILE;
+
+    const inputPersonalInformation = fs.createReadStream(file);
+
+    let personsInformationArray = [];
+
+    const parser = csv.parse({
+        delimiter: ',',
+        columns: true
+    }).on('data', (data) => {
+        personsInformationArray.push(data);
+    }).on('end', () => {
+        resolve(personsInformationArray);
+    });
+
+    inputPersonalInformation.pipe(parser);
+
+});
 
 module.exports = {
-    readFiles
+    readFiles,
+    getPersonsInformationFromCsv: readPersonsInformationCsv
 }

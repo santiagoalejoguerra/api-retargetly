@@ -16,15 +16,14 @@ class ResponseFilesList {
 
 }
 
-const UNIT_BASE = ['B', 'KB', 'MB', 'GB', 'TB'];
-const COUNT_DECIMAL = 1;
-
+const NAME_UNIT_BASE = ['B', 'KB', 'MB', 'GB', 'TB'];
+const MAX_COUNT_DECIMAL = 1;
 
 const getHumanredeableSize = sizeFile => {
 
     const unitBase = Math.floor(Math.log(sizeFile) / Math.log(1024));
 
-    return (sizeFile / Math.pow(1024, unitBase)).toFixed(COUNT_DECIMAL) + ' ' + UNIT_BASE[unitBase];
+    return (sizeFile / Math.pow(1024, unitBase)).toFixed(MAX_COUNT_DECIMAL) + ' ' + NAME_UNIT_BASE[unitBase];
 
 }
 
