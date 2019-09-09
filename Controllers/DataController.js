@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const SORTS = ["asc", "desc"];
-const FIELDS = ["name", "segment1", "segment2", "segment3", "segment4", "plataformId", "clientId"];
+const personInformationService = require('../Services/PersonalInformationService');
 
-router.get('/data', (req, res) => {
+const SORTS = ["ASC", "DESC"];
+const FIELDS = ["name", "segment1", "segment2", "segment3", "segment4", "platformId", "clientId"];
+
+router.get('/data', async (req, res) => {
 
     const query = req.query;
     const { sort, sortField } = query;
@@ -23,18 +25,15 @@ router.get('/data', (req, res) => {
             response: "Bad request"
         })
 
-    } else {
-
-        res.json({
-            sort,
-            sortField,
-            fields,
-            limit
-        });
+        return;
 
     }
 
-    
+    const personsInformation = await personInformationService.getByQuery(sort, sortField, fields, Number(limit));
+
+    res.status(200)
+        .json({response: personsInformation});
+ 
 });
 
 const isInvalidParamSort = sort => !SORTS.includes(sort);

@@ -8,7 +8,7 @@ const PersonInformation = connection.define('personInformation', {
     },
     segment1: {
         type: Sequelize.BOOLEAN,
-        allowNull: false
+        allowNull: false,
     },
     segment2: {
         type: Sequelize.BOOLEAN,

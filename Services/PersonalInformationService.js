@@ -18,6 +18,19 @@ const saveAll = async personsInformationArray => {
 
 }
 
+const getByQuery = async (sort, sortField, fields, limit) => {
+
+    const personsInformation = 
+        await PersonInformation.findAll({
+            order: [[sortField, sort]],
+            limit,
+            attributes: fields
+        });
+
+    return personsInformation;
+
+}
+
 const destroyAll = async () => {
     await PersonInformation.destroy({
         where: {},
@@ -28,5 +41,6 @@ const destroyAll = async () => {
 module.exports = {
     save,
     saveAll,
+    getByQuery,
     destroyAll
 }
