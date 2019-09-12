@@ -1,5 +1,3 @@
-const config = require('config-yml');
-
 const fileService = require('./FileService');
 const personalInformationService = require('./PersonalInformationService');
 
@@ -18,13 +16,15 @@ const configurePersonalsInformation = async () => {
         // Es necesario borrar los datos de la tabla para poder
         // insertar los datos cada vez que levanta la app
         // a partir de la lectura del archivo csv.
-        await personalInformationService.destroyAll();
+        // await personalInformationService.destroyAll();
 
-        console.log("Destroyed all");
-        
-        await personalInformationService.saveAll(personsInformationArray);
+        const count = await personalInformationService.count();
 
-        console.log("Inserted all");
+        if (count <= 0) {
+
+            await personalInformationService.saveAll(personsInformationArray);
+
+        }
 
     }
 

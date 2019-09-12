@@ -32,15 +32,24 @@ const getByQuery = async (sort, sortField, fields, limit) => {
 }
 
 const destroyAll = async () => {
+
     await PersonInformation.destroy({
         where: {},
         truncate: true
     });
+
+}
+
+const count = async () => {
+
+    return await PersonInformation.count();
+
 }
 
 module.exports = {
     save,
     saveAll,
     getByQuery,
+    count,
     destroyAll
 }
