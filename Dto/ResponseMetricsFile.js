@@ -35,6 +35,7 @@ class ResponseMetricsFile {
                     "status": fileStatus[status],
                     "started": this.started
                 };
+<<<<<<< HEAD
             case fileStatus.READY:
                 return {
                     "status": fileStatus[status],
@@ -42,6 +43,8 @@ class ResponseMetricsFile {
                     "finished": this.finished,
                     "metrics": this.metrics
                 }
+=======
+>>>>>>> a3f3b04445e160e4fda79a5a693fa0c429e87340
 
             default:
                 throw new Error("Other fileStatus is wrong: " + fileStatus);
