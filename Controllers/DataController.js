@@ -13,26 +13,32 @@ router.get('/data', async (req, res) => {
     const fields = query.fields ? JSON.parse(query.fields) : FIELDS;
     const limit = query.limit || "10";
 
-    const isInvalid =
+    const isInvalidParams =
         isInvalidParamSort(sort) ||
         isInvalidParamSortField(sortField) ||
         isInvalidParamFields(fields) ||
         isInvalidParamLimit(limit);
 
-    if (isInvalid) {
+    if (isInvalidParams) {
 
-        res.status(400).json({
-            response: "Bad request"
-        })
+        res.status(400).json("Bad request");
 
         return;
 
     }
 
-    const personsInformation = await personInformationService.getByQuery(sort, sortField, fields, Number(limit));
+    try {
+        const personsInformation = await personInformationService.getByQuery(sort, sortField, fields, Number(limit));
 
-    res.status(200)
-        .json({response: personsInformation});
+        res.status(200).json({
+            response: personsInformation
+        });
+        
+    } catch (err) {
+
+        res.status(500).json("Internal server error");
+
+    }
  
 });
 

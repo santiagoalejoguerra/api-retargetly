@@ -1,4 +1,4 @@
-const PersonInformation = require('../Models/PersonInformation');
+const PersonInformation = require('../Schemas/PersonInformation');
 
 const save = async personInformation => {
 

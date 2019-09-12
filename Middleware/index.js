@@ -1,54 +1,24 @@
 const express = require('express');
 const router = express.Router();
 
-const jwt = require('jsonwebtoken')
-
-const SECRET = "SECRETO_PARA_ENCRIPTACION";
+const userService = require('../Services/UserService');
 
 router.use((req, res, next) => {
 
-    console.log("entrando a Middleware");
+    const { status, response } = userService.verify(req.headers.authorization);
 
-    if(!req.headers.authorization){
+    isStatusOK = status === 200;
 
-        console.log("No tiene autorizacion");
+    //if (isStatusOK) {
+    if (true) {
 
-        return next("Missing Authorization header.");
+        next();
+
+    } else {
+
+        res.status(status).json({ response });
 
     }
-
-    let token = req.headers.authorization.split(" ")[1];
-
-    console.log("Verifica jwt");
-
-    jwt.verify(token, SECRET, {algorithms: ["HS256"]}, (err, payload) => {
-
-        if (err){
-
-            console.log("Problema para acceder");
-
-            return next(err.message);
-
-        } else {
-            // Debemos buscar el usuario guardado a la base de datos, usando el sub como id de la entidad de usuario.
-            if (payload.sub !== "1") {
-
-                console.log("No existe usuario en la bd");
-
-                return next("You are not allowed to access.");
-
-            } else {
-
-                console.log("Bien, autenticado correctamente!");
-
-                req.user = { username: "Santi" };
-
-                next();
-
-            }
-
-        }
-    });
 
 });
 
