@@ -3,11 +3,10 @@ const router = express.Router();
 
 const fileService = require('../Services/FileService');
 
-const ResponseFileList = require('../Models/ResponseFilesList');
+const ResponseFileList = require('../Dto/ResponseFilesList');
 
 router.get('/list', async (req, res) => {
 
-    // TODO verificar que esté bien así
     const humanreadable = req.query.humanreadable === 'true';
 
     const files = await fileService.readFiles();
