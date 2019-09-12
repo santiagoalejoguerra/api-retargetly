@@ -24,17 +24,12 @@ class ResponseMetricsFile {
                     "started": this.started
                 };
 
-            case fileStatus.PROCESSING:
+            case fileStatus.FAILED:
                 return {
                     "status": fileStatus[status],
                     "message": this.message
                 };
 
-            case fileStatus.FAILED:
-                return {
-                    "status": fileStatus[status],
-                    "started": this.started
-                };
             case fileStatus.READY:
                 return {
                     "status": fileStatus[status],
