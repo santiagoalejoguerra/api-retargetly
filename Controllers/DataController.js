@@ -6,7 +6,7 @@ const personInformationService = require('../Services/PersonalInformationService
 const SORTS = ["ASC", "DESC"];
 const FIELDS = ["name", "segment1", "segment2", "segment3", "segment4", "platformId", "clientId"];
 
-router.get('/data', async (req, res) => {
+router.get('/data', async (req, res, next) => {
 
     const query = req.query;
     const { sort, sortField } = query;
@@ -36,7 +36,7 @@ router.get('/data', async (req, res) => {
         
     } catch (err) {
 
-        res.status(500).json("Internal server error");
+        next({message: err});
 
     }
  

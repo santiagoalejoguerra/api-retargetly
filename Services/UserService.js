@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const moment = require('moment');
+const DateUtils = require('../Utils/DateUtils');
 
 const config = require('config-yml');
 
@@ -26,7 +26,7 @@ const login = (user, password) => {
             status: 200, 
             response: {
                 token: token,
-                expires: formatDate(payload.exp)
+                expires: DateUtils.formatDateUnix(payload.exp)
             }
         };
 
@@ -56,7 +56,9 @@ const verify = authorization => {
         }
 
     } catch (err) {
-        console.log(err);
+        console.log(err.message);
+
+        //throw new Error(err.message);
         
         return {
             status: 401,
@@ -66,8 +68,6 @@ const verify = authorization => {
 }
 
 const getExpireTime = () => Math.round(Date.now() / 1000) + parseInt(config.auth.expires);
-
-const formatDate = date => moment.unix(date).format(config.auth.format_custom);
 
 module.exports = {
     login,
