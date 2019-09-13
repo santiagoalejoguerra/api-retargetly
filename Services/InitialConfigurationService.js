@@ -18,13 +18,16 @@ const configurePersonalsInformation = async () => {
         // Es necesario borrar los datos de la tabla para poder
         // insertar los datos cada vez que levanta la app
         // a partir de la lectura del archivo csv.
-        await personalInformationService.destroyAll();
+        // await personalInformationService.destroyAll();
 
-        console.log("Destroyed all");
-        
-        await personalInformationService.saveAll(personsInformationArray);
+        // console.log("Destroyed all");
 
-        console.log("Inserted all");
+        if (await personalInformationService.count() <= 0) {
+
+            await personalInformationService.saveAll(personsInformationArray);
+            console.log("Inserted all");
+
+        }
 
     }
 

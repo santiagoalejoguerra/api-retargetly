@@ -6,7 +6,7 @@ const fileStatus = require('../Models/FileStatus');
 const FileMetric = connection.define('fileMetric', {
     name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
     },
     status: {
         type: Sequelize.ENUM,
@@ -15,7 +15,7 @@ const FileMetric = connection.define('fileMetric', {
     },
     startDate: {
         type: Sequelize.DATE,
-        allowNull: true
+        allowNull: false
     },
     finishDate: {
         type: Sequelize.DATE,

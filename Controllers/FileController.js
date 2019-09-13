@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const fileService = require('../Services/FileService');
+const metricService = require('../Services/MetricService');
 
 const ResponseFileList = require('../Dto/ResponseFilesList');
 
@@ -18,7 +19,7 @@ router.get('/list', async (req, res) => {
     });
 });
 
-router.get('/metrics', (req, res) => {
+router.get('/metrics', async (req, res) => {
 
     const { filename } = req.query;
 
@@ -29,7 +30,10 @@ router.get('/metrics', (req, res) => {
         return;
     }
 
+    console.log(await metricService.getMetricsByFile(filename));
+
     res.status(200).json("GET File Metrics OK");
+
 });
 
 module.exports = router;

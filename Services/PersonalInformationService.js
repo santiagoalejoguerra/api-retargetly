@@ -11,7 +11,7 @@ const save = async personInformation => {
 const saveAll = async personsInformationArray => {
 
     PersonInformation.bulkCreate(personsInformationArray)
-    .then(() => PersonInformation.count())
+    .then(() => count())
     .then((data) => {
         console.log("Insert personsInformation count:", data);
     });
@@ -38,9 +38,14 @@ const destroyAll = async () => {
     });
 }
 
+const count = async () => {
+    return await PersonInformation.count();
+}
+
 module.exports = {
     save,
     saveAll,
     getByQuery,
-    destroyAll
+    destroyAll,
+    count
 }
