@@ -7,7 +7,8 @@ const connection = new Sequelize(
   mysqlConfig.password, 
   {
     host: mysqlConfig.host,
-    dialect: mysqlConfig.dialect
+    dialect: mysqlConfig.dialect,
+    logging: mysqlConfig.logging
   })
 
 module.exports = connection

@@ -1,47 +1,52 @@
-const fileStatus = require('../Models/FileStatus');
+const FileStatus = require('../Models/FileStatus');
+const DateUtils = require('../Utils/DateUtils');
 
 class ResponseMetricsFile {
     
-    constructor(status, started, finished, metrics) {
+    constructor({status, startDate, finishDate, message, metrics}) {
         this.status = status;
-        this.started = started;
-        this.finished = finished;
+        this.started = startDate;
+        this.finished = finishDate;
         this.metrics = metrics;
-    }
-
-    constructor(status, message) {
-        this.status = status;
         this.message = message;
     }
 
     response() {
-        switch (status) {
 
-            case fileStatus.STARTED:
-            case fileStatus.PROCESSING:
+        const getFileStatus = FileStatus[this.status] || this.status;
+
+        switch (getFileStatus || this.status) {
+            case FileStatus.STARTED:
+            case FileStatus.PROCESSING:
                 return {
-                    "status": fileStatus[status],
-                    "started": this.started
+                    "status": getFileStatus,
+                    "started": getFormatDate(this.started)
                 };
 
-            case fileStatus.FAILED:
+            case FileStatus.FAILED:
                 return {
-                    "status": fileStatus[status],
+                    "status": getFileStatus,
                     "message": this.message
                 };
 
-            case fileStatus.READY:
+            case FileStatus.READY:
                 return {
-                    "status": fileStatus[status],
-                    "started": this.started,
-                    "finished": this.finished,
+                    "status": getFileStatus,
+                    "started": getFormatDate(this.started),
+                    "finished": getFormatDate(this.finished),
                     "metrics": this.metrics
                 }
 
             default:
-                throw new Error("Other fileStatus is wrong: " + fileStatus);
+                throw new Error("Other fileStatus is wrong: " + this.status);
         }
-
     }
 
 }
+
+
+getFormatDate = date => {
+    return DateUtils.formatDate(date);
+}
+
+module.exports = ResponseMetricsFile;

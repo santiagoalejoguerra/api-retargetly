@@ -2,11 +2,17 @@ const sftpConfig = require('config-yml').sftp;
 const Client = require('ssh2-sftp-client');
 const sftp = new Client();
 
-const connect = () => sftp.connect({
+const connect = () => {
+
+    console.log("Connecting to sftp");
+
+    return sftp.connect({
     host: sftpConfig.url,
     username: sftpConfig.user,
-    password: sftpConfig.password
+    password: sftpConfig.password,
+    readyTimeout: sftpConfig.readyTimeout
   });
+}
 
 const getFiles = async () => {
 
@@ -14,9 +20,34 @@ const getFiles = async () => {
         const data = await connect()
             .then(() => sftp.list(sftpConfig.path));
 
-        if (data !== null) {
+        if (data) {
             return data;
         }
+
+    } catch (err) {
+
+        throw new Error("Connection problem to SFTP");
+
+    } finally {
+        sftp.end();
+    }
+
+}
+
+const getFileByFilename = async filename => {
+
+    try {
+
+        const data = await connect()
+            .then(() => sftp.get(sftpConfig.path + filename));
+
+        console.log("Got data", data);
+
+        return data;
+
+    } catch (err) {
+
+        throw new Error("Connection problem to SFTP");
 
     } finally {
         sftp.end();
@@ -25,5 +56,6 @@ const getFiles = async () => {
 }
 
 module.exports = {
-    getFiles
+    getFiles,
+    getFileByFilename
 }

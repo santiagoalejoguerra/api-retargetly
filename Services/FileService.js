@@ -8,6 +8,8 @@ const File = require('../Models/File');
 const PERSONS_INFORMATION_PATH = __dirname + '/../Resources/';
 const PERSONS_INFORMATION_FILE = 'personsInformation.csv';
 
+const FILES_INFORMATION_PATH = __dirname + '/../Resources/files/';
+
 const readFiles = async () => {
 
     const files = await sftpService.getFiles();
@@ -54,20 +56,39 @@ const getPersonsInformationPromise = () => new Promise(resolve => {
 
     let personsInformationArray = [];
 
-    const parser = csv.parse({
+    inputPersonalInformation.pipe(csv.parse({
         delimiter: ',',
         columns: true
     }).on('data', (data) => {
         personsInformationArray.push(data);
     }).on('end', () => {
         resolve(personsInformationArray);
-    });
-
-    inputPersonalInformation.pipe(parser);
+    }));
 
 });
 
+const readFileMetricsByName = async filename => {
+
+    try {
+
+        //const file = await sftpService.getFileByFilename(filename);
+
+        const file = fs.createReadStream(FILES_INFORMATION_PATH + filename);
+
+        return file;
+
+    } catch (err) {
+
+        console.log("Error when read file: " + err.message);
+        
+        throw new Error(err.message);
+
+    }
+
+}
+
 module.exports = {
     readFiles,
-    getPersonsInformationFromCsv: readPersonsInformationCsv
+    getPersonsInformationFromCsv: readPersonsInformationCsv,
+    readFileMetricsByName
 }

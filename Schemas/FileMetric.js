@@ -20,6 +20,10 @@ const FileMetric = connection.define('fileMetric', {
     finishDate: {
         type: Sequelize.DATE,
         allowNull: true
+    },
+    message: {
+        type: Sequelize.STRING,
+        allowNull: true
     }
 
 });
