@@ -149,5 +149,6 @@ const initializeNewArrayIfEmpty = (segments, segment) => {
 const getIndexObjectSegmentByCountry = (segmentInfo, country) => segmentInfo.findIndex(element => element.country === country);
 
 module.exports = {
-    getMetricsByFile
+    getMetricsByFile,
+    addCountryToSegment
 }
