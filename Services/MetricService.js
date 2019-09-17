@@ -1,5 +1,5 @@
 const csv = require('csv');
-const isoCountry = require('iso-3166-2');
+const countryUtils = require('../Utils/CountryUtils');
 
 const fileService = require('./FileService');
 const fileMetricService = require('./FileMetricService');
@@ -67,21 +67,47 @@ const processFile = async (isCreatedRecetly, fileMetricToProcess) => {
                     
                     const user = line[0];
                     const segmentsString = line[1];
-                    const country = line[2];
+                    const countryCode = line[2];
+
+                    const isCodeCountryInvalid = !countryUtils.isCountryCodeValid(countryCode);
+
+                    if (isCodeCountryInvalid) {
+
+                        throw new Error("Wrong file format.");
+
+                    }
 
                     segmentsArray = segmentsString.split(',');
                     
                     segmentsArray.forEach(segment => {
 
-                        addCountryToSegment(segments, segment, country);
+                        const isNumberSegmentInvalid = !isIntegerPositive(segment);
+
+                        if (isNumberSegmentInvalid) {
+
+                            throw new Error("Wrong file format.");
+
+                        }
+
+                        addCountryToSegment(segments, segment, countryCode);
 
                     });
         
                 }).on('end', () => {
-        
-                    saveSegments(fileName, segments);
 
-                    updateStatusFinishedById(fileMetricToProcess.id);
+                    try {
+        
+                        saveSegments(fileName, segments);
+
+                        updateStatusFinishedById(fileMetricToProcess.id);
+
+                    } catch (err) {
+
+                        console.log(err.message);
+
+                        throw new Error("Processing error.");
+
+                    }
                     
                 }));
 
@@ -105,65 +131,103 @@ const addCountryToSegment = (segments, segment, country) => {
                         
     const countryIndex = getIndexObjectSegmentByCountry(segments[segment], country);
 
-    isCountryExists = countryIndex >= 0;
+    postCountryToSegment(countryIndex, segments, segment, country);
 
-    if (isCountryExists) {
-        segments[segment][countryIndex].count = 
+}
+
+const postCountryToSegment = (countryIndex, segments, segment, country) => {
+    isCountryMetricExists = countryIndex >= 0;
+    if (isCountryMetricExists) {
+        segments[segment][countryIndex].count =
             segments[segment][countryIndex].count + 1;
-    } else {
+    }
+    else {
         segments[segment].push({
             country: country,
             count: 1
         });
     }
-
 }
 
 const saveSegments = async (fileName, segments) => {
 
     console.log("Finish process to file", fileName);
-    //console.log(Object.keys(segments));
 
-    const fileMetricSaved = await fileMetricService.findByFilename(fileName);
+    try {
 
-    if (fileMetricSaved) {
+        const fileMetricSaved = await fileMetricService.findByFilename(fileName);
 
-        Object.keys(segments).forEach(async segment => {
+        saveEachSegment(segments, fileMetricSaved);
 
-            const segmentSaved = await segmentFileMetricService.save(segment, fileMetricSaved.id);
+    } catch (err) {
 
-            if (segmentSaved) {
+        console.log("Error when saving fileMetrics", err.message);
 
-                segments[segment].forEach(async countryMetric => {
-
-                    console.log(countryMetric.country, countryMetric.count, segmentSaved.id);
-
-                    try {
-
-                        await countrySegmentMetricService.save(countryMetric.country, countryMetric.count, segmentSaved.id);
-
-                    } catch (err) {
-                        console.log(err);
-                    }
-                    
-
-                })
-                
-
-            }
-            
-
-        })
+        throw new Error(err.message);
 
     }
 
+}
+
+const saveEachSegment = async (segments, fileMetricSaved) => {
+
+    if (fileMetricSaved) {
+
+        try {
+
+            Object.keys(segments).forEach(async (segment) => {
+
+                const segmentSaved = await segmentFileMetricService.save(segment, fileMetricSaved.id);
+    
+                saveEachCountryMetric(segments, segment, segmentSaved);
+                
+            });
+
+        } catch (err) {
+
+            console.log("Error when saving segment metrics", err);
+
+            throw new Error(err.message);
+
+        }
+
+    } else {
+
+        const errorMessage = "File metric not found in db";
+
+        console.log(errorMessage);
+
+        throw new Error(errorMessage);
+
+    }
+}
+const saveEachCountryMetric = async (segments, segment, segmentSaved) => {
+
+    if (segmentSaved) {
+
+        try {
+
+            segments[segment].forEach(async (countryMetric) => {
+
+                    await countrySegmentMetricService.save(countryMetric.country, countryMetric.count, segmentSaved.id);
+                
+            });
+        
+        } catch (err) {
+
+            console.log("Error when saving country metrics:", err);
+
+            throw new Error(err.message);
+
+        }
+    }
 }
 
 const getMetricReadyFile = fileMetric => {
 
     if (FileStatus[fileMetric.status] === FileStatus.READY) {
         
-        const 
+        // TODO
         
     }
 
@@ -190,6 +254,14 @@ const initializeNewArrayIfEmpty = (segments, segment) => {
 }
 
 const getIndexObjectSegmentByCountry = (segmentInfo, country) => segmentInfo.findIndex(element => element.country === country);
+
+const isIntegerPositive = (stringNumber) => {
+
+    const number = Math.floor(Number(stringNumber));
+
+    return number !== Infinity && String(number) === stringNumber && number > 0;
+
+}
 
 module.exports = {
     getMetricsByFile,
