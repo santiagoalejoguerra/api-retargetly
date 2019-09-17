@@ -3,6 +3,10 @@ const isoCountry = require('iso-3166-2');
 
 const fileService = require('./FileService');
 const fileMetricService = require('./FileMetricService');
+const segmentFileMetricService = require('./SegmentFileMetricService');
+const countrySegmentMetricService = require('./CountrySegmentMetricService');
+
+const FileStatus = require('../Models/FileStatus')
 
 const getMetricsByFile = async file => {
 
@@ -18,6 +22,8 @@ const getMetricsByFile = async file => {
 
             processFile(createdRecetly, fileMetric);
 
+            getMetricReadyFile(fileMetric);
+
             return fileMetric;
 
         }
@@ -28,13 +34,6 @@ const getMetricsByFile = async file => {
         throw new Error(err.message);
 
     }
-
-    // Si el registro está
-        // Async si el estado es Starting, abro Promise (dentro del promise guadar estado processing)
-        // devolver estado
-    // fallo
-
-    //fileService.getFile(file);
 
 }
 
@@ -57,6 +56,8 @@ const processFile = async (isCreatedRecetly, fileMetricToProcess) => {
                 const fileFromExternal = await fileService.readFileMetricsByName(fileName);
 
                 let segments = {};
+
+                console.log("Processing file", fileName);
 
                 fileFromExternal.pipe(csv.parse({
                     delimiter: '\t',
@@ -121,8 +122,50 @@ const addCountryToSegment = (segments, segment, country) => {
 const saveSegments = async (fileName, segments) => {
 
     console.log("Finish process to file", fileName);
+    //console.log(Object.keys(segments));
 
-    
+    const fileMetricSaved = await fileMetricService.findByFilename(fileName);
+
+    if (fileMetricSaved) {
+
+        Object.keys(segments).forEach(async segment => {
+
+            const segmentSaved = await segmentFileMetricService.save(segment, fileMetricSaved.id);
+
+            if (segmentSaved) {
+
+                segments[segment].forEach(async countryMetric => {
+
+                    console.log(countryMetric.country, countryMetric.count, segmentSaved.id);
+
+                    try {
+
+                        await countrySegmentMetricService.save(countryMetric.country, countryMetric.count, segmentSaved.id);
+
+                    } catch (err) {
+                        console.log(err);
+                    }
+                    
+
+                })
+                
+
+            }
+            
+
+        })
+
+    }
+
+}
+
+const getMetricReadyFile = fileMetric => {
+
+    if (FileStatus[fileMetric.status] === FileStatus.READY) {
+        
+        const 
+        
+    }
 
 }
 

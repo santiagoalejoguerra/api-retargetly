@@ -7,7 +7,7 @@ const metricService = require('../Services/MetricService');
 const ResponseFileList = require('../Dto/ResponseFilesList');
 const ResponseMetricFile = require('../Dto/ResponseMetricsFile');
 
-router.get('/list', async (req, next) => {
+router.get('/list', async (req, res, next) => {
 
     const humanreadable = req.query.humanreadable === 'true';
 
@@ -23,8 +23,10 @@ router.get('/list', async (req, next) => {
 
     } catch (err) {
 
+        console.log("Error when get files list:", err.message);
+
         next({
-            message: err
+            message: err.message
         });
 
     }
@@ -46,6 +48,8 @@ router.get('/metrics', async (req, res, next) => {
         const metricsByFile = await metricService.getMetricsByFile(filename);
 
         if (metricsByFile) {
+
+            console.log(metricsByFile.getSegments)
 
             const responseMetricsFile = new ResponseMetricFile(metricsByFile);
 

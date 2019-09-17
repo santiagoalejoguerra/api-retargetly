@@ -12,5 +12,6 @@ const SegmentFileMetric = connection.define('segmentFileMetric', {
 });
 
 SegmentFileMetric.belongsTo(FileMetric);
+FileMetric.hasMany(SegmentFileMetric);
 
 module.exports = SegmentFileMetric;
