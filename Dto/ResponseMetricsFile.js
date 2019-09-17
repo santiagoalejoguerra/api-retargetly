@@ -38,7 +38,7 @@ class ResponseMetricsFile {
                 }
 
             default:
-                throw new Error("Other fileStatus is wrong: " + this.status);
+                throw new Error("Other fileStatus is wrong: " + getFileStatus);
         }
     }
 
