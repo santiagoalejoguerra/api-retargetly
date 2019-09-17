@@ -10,6 +10,7 @@ const PERSONS_INFORMATION_FILE = 'personsInformation.csv';
 
 const FILES_INFORMATION_PATH = __dirname + '/../Resources/files/';
 
+
 const readFiles = async () => {
 
     const files = await sftpService.getFiles();
@@ -71,7 +72,7 @@ const readFileMetricsByName = async filename => {
 
     try {
 
-        //const file = await sftpService.getFileByFilename(filename);
+        //await sftpService.getFileByFilename(filename);
 
         const file = fs.createReadStream(FILES_INFORMATION_PATH + filename);
 

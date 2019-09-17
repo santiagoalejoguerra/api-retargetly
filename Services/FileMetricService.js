@@ -1,4 +1,6 @@
 const FileMetric = require('../Schemas/FileMetric');
+const SegmentFileMetric = require('../Schemas/SegmentFileMetric')
+
 const FileStatus = require('../Models/FileStatus');
 
 const findOrCreateByFilename = async filename => {
@@ -10,6 +12,16 @@ const findOrCreateByFilename = async filename => {
         defaults: {
             startDate: Date.now(),
             status: FileStatus.STARTED
+        },
+    });
+
+}
+
+const findByFilename = async filename => {
+
+    return await FileMetric.findOne({
+        where: {
+            name: filename
         }
     });
 
@@ -59,6 +71,7 @@ const updateStatusFinishedById = async idFileMetric => {
 
 module.exports = {
     findOrCreateByFilename,
+    findByFilename,
     updateStatusProcessById,
     updateStatusFailedAndMessageById,
     updateStatusFinishedById,

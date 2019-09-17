@@ -18,4 +18,4 @@ sftp:
   path: /files/
   user: exercises
   password: gQ6gT72I8bmY
-  readyTimeout: 1000
+  readyTimeout: 60000

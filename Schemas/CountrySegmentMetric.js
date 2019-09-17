@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const connection = require('../RemoteServices/MySqlService');
 
-const SegmentFileMetric = require('./SegmentFileMetricMEtric');
+const SegmentFileMetric = require('./SegmentFileMetric');
 
 const CountrySegmentMetric = connection.define('countrySegmentMetric', {
     country: {
@@ -15,6 +15,6 @@ const CountrySegmentMetric = connection.define('countrySegmentMetric', {
 
 });
 
-CountrySegmentMetric.belongTo(SegmentFileMetric);
+CountrySegmentMetric.belongsTo(SegmentFileMetric);
 
 module.exports = CountrySegmentMetric;
