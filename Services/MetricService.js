@@ -243,7 +243,7 @@ const getMetricReadyFile = async fileMetric => {
 
                 (result[object['segmentId']] = result[object['segmentId']] || []).push({
                     country: object.country,
-                    count: object.count
+                    count: parseInt(object.count)
                 })
 
                 return result;
