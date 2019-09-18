@@ -10,6 +10,17 @@ const save = async (country, count, idSegment) => {
 
 }
 
+const getCountriesByIdSegment = async idSegment => {
+
+    return await CountrySegmentMetric.findAll({
+        where: {
+            segmentFileMetricId: idSegment
+        }
+    });
+
+}
+
 module.exports = {
-    save
+    save,
+    getCountriesByIdSegment
 }

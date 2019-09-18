@@ -22,7 +22,7 @@ const getMetricsByFile = async file => {
 
             processFile(createdRecetly, fileMetric);
 
-            getMetricReadyFile(fileMetric);
+            await getMetricReadyFile(fileMetric);
 
             return fileMetric;
 
@@ -136,12 +136,16 @@ const addCountryToSegment = (segments, segment, country) => {
 }
 
 const postCountryToSegment = (countryIndex, segments, segment, country) => {
+
     isCountryMetricExists = countryIndex >= 0;
+
     if (isCountryMetricExists) {
+
         segments[segment][countryIndex].count =
             segments[segment][countryIndex].count + 1;
-    }
-    else {
+
+    } else {
+
         segments[segment].push({
             country: country,
             count: 1
@@ -223,11 +227,43 @@ const saveEachCountryMetric = async (segments, segment, segmentSaved) => {
     }
 }
 
-const getMetricReadyFile = fileMetric => {
+const getMetricReadyFile = async fileMetric => {
+
+    console.log(FileStatus[fileMetric.status], fileMetric.status, FileStatus.READY);
 
     if (FileStatus[fileMetric.status] === FileStatus.READY) {
         
-        // TODO
+        const segmentsFromDb = await segmentFileMetricService.getSegmentsByIdFileMetric(fileMetric.id);
+
+        if (segmentsFromDb) {
+
+            const result = segmentsFromDb.reduce((result, object) => {
+
+                segmentNumber = object.segmentId;
+
+                (result[object['segmentId']] = result[object['segmentId']] || []).push({
+                    country: object.country,
+                    count: object.count
+                })
+
+                return result;
+
+            }, {});
+
+            const final = [];
+
+            Object.keys(result).forEach(segment => {
+
+                final.push({
+                    "segmendId": segment,
+                    "Uniques": result[segment]
+                })
+
+            });
+
+            fileMetric.metrics = final;
+
+        }
         
     }
 
@@ -267,3 +303,4 @@ module.exports = {
     getMetricsByFile,
     addCountryToSegment
 }
+

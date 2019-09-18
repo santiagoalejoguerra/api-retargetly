@@ -49,7 +49,7 @@ router.get('/metrics', async (req, res, next) => {
 
         if (metricsByFile) {
 
-            console.log(metricsByFile.getSegments)
+            //console.log(metricsByFile.message)
 
             const responseMetricsFile = new ResponseMetricFile(metricsByFile);
 
