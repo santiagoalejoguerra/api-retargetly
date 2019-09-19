@@ -1,6 +1,6 @@
+// @ts-check
 const sftpConfig = require('config-yml').sftp;
-const Client = require('ssh2-sftp-client');
-const sftp = new Client();
+const Client = require('ssh2').Client;
 
 const FILE_CHARACTER_SFTP = '-';
 const DESTINATION_FILE_TMP = __dirname + '/../Resources/files/';
@@ -10,46 +10,73 @@ const connect = () => {
     console.log("Connecting to sftp. Url:", sftpConfig.url,
         "username:", sftpConfig.user, "password:", sftpConfig.password);
 
-    return sftp.connect({
+    return {
         host: sftpConfig.url,
         username: sftpConfig.user,
         password: sftpConfig.password,
         readyTimeout: sftpConfig.readyTimeout
-    });
+    };
 }
 
-const getFiles = async () => {
+const getFiles = () => new Promise((resolve, reject) => {
 
-    try {
-        const data = await connect()
-            .then(() => sftp.list(sftpConfig.path));
+    const client = new Client();
 
-        if (data) {
-            return data;
-        }
+    const connect = {
+        host: sftpConfig.url,
+        username: sftpConfig.user,
+        password: sftpConfig.password,
+        readyTimeout: sftpConfig.readyTimeout
+    };
 
-    } catch (err) {
+    client.on('ready', () => {
+        console.log('Client :: ready for list');
 
-        throw new Error("Connection problem to SFTP.", err);
+        client.sftp((err, sftp) => {
 
-    } finally {
-        sftp.end();
-    }
+            if (err) {
+                reject(err);
+            }
 
-}
+            sftp.readdir(sftpConfig.path, (err, list) => {
 
-const getFileByFilename = async filename => {
+                if (err) {
+                    reject(err);
+                }
 
-    try {
+                client.end();
 
-        let isExistsFile = await connect()
-            .then(() => sftp.exists(sftpConfig.path + filename));
+                resolve(list);
 
-        isExistsFile = isExistsFile === FILE_CHARACTER_SFTP;
+            });
 
-        if (isExistsFile) {
+        });
 
-            options = {
+    }).connect(connect);
+
+});
+
+const getFileByFilename = async filename => new Promise((resolve, reject) => {
+
+    const client = new Client();
+
+    const connect = {
+        host: sftpConfig.url,
+        username: sftpConfig.user,
+        password: sftpConfig.password,
+        readyTimeout: sftpConfig.readyTimeout
+    };
+
+    client.on('ready', () => {
+        console.log('Client :: ready for get file', filename);
+
+        client.sftp((err, sftp) => {
+
+            if (err) {
+                reject(err);
+            }
+
+            const options = {
                 concurrency: 64,
                 chunkSize: 32768,
                 step: (total_transferred, chunk, total) => {
@@ -57,24 +84,65 @@ const getFileByFilename = async filename => {
                 } 
             }
 
-            const downloadData = await connect()
-            .then(() => sftp.fastGet(sftpConfig.path + filename, DESTINATION_FILE_TMP + filename, options));
+            sftp.fastGet(sftpConfig.path + filename, DESTINATION_FILE_TMP + filename, options, (err) => {
 
-            console.log("Got data", downloadData);
+                if (err) {
+                    reject(err);
+                }
 
-        } else {
+                client.end();
 
-            throw new Error("File not found");
+                console.log("EXITO", filename);
 
-        }
+                resolve();
 
-    } catch (err) {
+            });
 
-        throw new Error(err.message);
+        });
 
-    } finally {
-        sftp.end();
-    }
+    }).connect(connect);
+
+});
+
+
+
+const das = {
+
+    // try {
+
+    //     let isExistsFile = await connect()
+    //         .then(() => sftp.exists(sftpConfig.path + filename));
+
+    //     isExistsFile = isExistsFile === FILE_CHARACTER_SFTP;
+
+    //     if (isExistsFile) {
+
+    //         options = {
+    //             concurrency: 64,
+    //             chunkSize: 32768,
+    //             step: (total_transferred, chunk, total) => {
+    //                 console.log("Downloading file", filename, ":", (total_transferred/total)*100 + ' %');
+    //             } 
+    //         }
+
+    //         const downloadData = await connect()
+    //         .then(() => sftp.fastGet(sftpConfig.path + filename, DESTINATION_FILE_TMP + filename, options));
+
+    //         console.log("Got data", downloadData);
+
+    //     } else {
+
+    //         throw new Error("File not found");
+
+    //     }
+
+    // } catch (err) {
+
+    //     throw new Error(err.message);
+
+    // } finally {
+    //     sftp.end();
+    // }
 
 }
 

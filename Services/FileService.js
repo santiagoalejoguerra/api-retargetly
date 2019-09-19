@@ -13,25 +13,33 @@ const FILES_INFORMATION_PATH = __dirname + '/../Resources/files/';
 
 const readFiles = async () => {
 
-    const files = await sftpService.getFiles();
+    try {
 
-    let fileInfo;
+        const files = await sftpService.getFiles();
 
-    const arrayFiles = [];
+        let fileInfo;
 
-    if (files !== null) {
-    
-        files.forEach(file =>  {
-            
-            fileInfo = new File(file.name, file.size);
-    
-            arrayFiles.push(fileInfo);
-    
-        });
+        const arrayFiles = [];
+
+        if (files !== null) {
+        
+            files.forEach(file =>  {
+                
+                fileInfo = new File(file.filename, file.attrs.size);
+        
+                arrayFiles.push(fileInfo);
+        
+            });
+
+        }
+
+        return arrayFiles;
+
+    } catch (err) {
+
+        throw err;
 
     }
-
-    return arrayFiles;
 
 }
 
