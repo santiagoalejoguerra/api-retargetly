@@ -11,6 +11,8 @@ const api = require('./Routes/index.js');
 
 const port = config.port;
 
+require('events').EventEmitter.defaultMaxListeners = 15;
+
 mySqlService
         .authenticate()
         .then(() => {

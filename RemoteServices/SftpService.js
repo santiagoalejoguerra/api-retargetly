@@ -80,7 +80,7 @@ const getFileByFilename = async filename => new Promise((resolve, reject) => {
                 concurrency: 64,
                 chunkSize: 32768,
                 step: (total_transferred, chunk, total) => {
-                    console.log("Downloading file", filename, ":", (total_transferred/total)*100 + ' %');
+                    process.stdout.write("Downloading file " + filename + ": " + (total_transferred/total)*100 + ' % \r');
                 } 
             }
 

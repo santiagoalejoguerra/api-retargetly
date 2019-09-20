@@ -49,15 +49,11 @@ router.get('/metrics', async (req, res, next) => {
 
         if (metricsByFile) {
 
-            //console.log(metricsByFile.message)
-
             const responseMetricsFile = new ResponseMetricFile(metricsByFile);
 
             res.status(200).json({
                 response: responseMetricsFile.response()
             });
-
-            console.log("File controller");
 
         } else {
 
