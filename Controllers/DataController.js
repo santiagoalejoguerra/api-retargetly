@@ -3,15 +3,18 @@ const router = express.Router();
 
 const personInformationService = require('../Services/PersonalInformationService');
 
+const HttpCodeStatusUtils = require('../Utils/HttpCodeStatusUtils');
+
 const SORTS = ["ASC", "DESC"];
 const FIELDS = ["name", "segment1", "segment2", "segment3", "segment4", "platformId", "clientId"];
+const LIMIT_DEFAULT = "10";
 
 router.get('/data', async (req, res, next) => {
 
     const query = req.query;
     const { sort, sortField } = query;
     const fields = query.fields ? JSON.parse(query.fields) : FIELDS;
-    const limit = query.limit || "10";
+    const limit = query.limit || LIMIT_DEFAULT;
 
     const isInvalidParams =
         isInvalidParamSort(sort) ||
@@ -21,16 +24,17 @@ router.get('/data', async (req, res, next) => {
 
     if (isInvalidParams) {
 
-        res.status(400).json("Bad request");
+        res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_BAD_REQUEST).json("Bad request");
 
         return;
 
     }
 
     try {
+
         const personsInformation = await personInformationService.getByQuery(sort, sortField, fields, Number(limit));
 
-        res.status(200).json({
+        res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_OK).json({
             response: personsInformation
         });
         
@@ -48,9 +52,9 @@ const isInvalidParamSortField = sortField => !FIELDS.includes(sortField);
 
 const isInvalidParamFields = fields => !fields.length > 0 || !fields.every(field => FIELDS.includes(field));
 
-const isInvalidParamLimit = limit => !isInteger(limit);
+const isInvalidParamLimit = limit => !isIntegerPositive(limit);
 
-const isInteger = (stringNumber) => {
+const isIntegerPositive = (stringNumber) => {
 
     const number = Math.floor(Number(stringNumber));
 

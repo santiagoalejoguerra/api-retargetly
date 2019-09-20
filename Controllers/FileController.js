@@ -1,3 +1,4 @@
+//@ts-check
 const express = require('express');
 const router = express.Router();
 
@@ -6,6 +7,8 @@ const metricService = require('../Services/MetricService');
 
 const ResponseFileList = require('../Dto/ResponseFilesList');
 const ResponseMetricFile = require('../Dto/ResponseMetricsFile');
+
+const HttpCodeStatusUtils = require('../Utils/HttpCodeStatusUtils');
 
 router.get('/list', async (req, res, next) => {
 
@@ -17,7 +20,7 @@ router.get('/list', async (req, res, next) => {
     
         var filesInfoResponse = new ResponseFileList(files, humanreadable);
     
-        res.status(200).json({
+        res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_OK).json({
             response: filesInfoResponse.response()
         });
 
@@ -37,10 +40,10 @@ router.get('/metrics', async (req, res, next) => {
 
     const { filename } = req.query;
 
-    isParamEmpty = filename === undefined || filename === '';
+    const isParamEmpty = filename === undefined || filename === '';
 
     if (isParamEmpty) {
-        res.status(400).json({response: "filename param is required"});
+        res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_BAD_REQUEST).json({response: "filename param is required"});
         return;
     }
     try {
@@ -51,7 +54,7 @@ router.get('/metrics', async (req, res, next) => {
 
             const responseMetricsFile = new ResponseMetricFile(metricsByFile);
 
-            res.status(200).json({
+            res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_OK).json({
                 response: responseMetricsFile.response()
             });
 

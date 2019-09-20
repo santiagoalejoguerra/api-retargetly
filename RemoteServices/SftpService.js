@@ -1,4 +1,3 @@
-// @ts-check
 const sftpConfig = require('config-yml').sftp;
 const Client = require('ssh2').Client;
 

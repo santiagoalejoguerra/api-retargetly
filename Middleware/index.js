@@ -1,11 +1,20 @@
 const userService = require('../Services/UserService');
 const DateUtils = require('../Utils/DateUtils');
+const HttpCodeStatusUtils = require('../Utils/HttpCodeStatusUtils');
+
+const reqHandle = (req, res, next) => {
+
+    console.log('--->', DateUtils.formatDate(Date.now()), 'INFO:', req.method, '-', req.url);
+
+    next();
+
+}
 
 const verifyAuth = (req, res, next) => {
 
     const { status, response } = userService.verify(req.headers.authorization);
 
-    isStatusOK = status === 200;
+    isStatusOK = status === HttpCodeStatusUtils.HTTP_CODE_STATUS_OK;
 
     //if (isStatusOK) {
     if (true) {
@@ -14,31 +23,29 @@ const verifyAuth = (req, res, next) => {
 
     } else {
 
-        res.status(status).json({ response });
+        res.status(status).json({ code: status, response });
 
     }
 
 };
 
-const reqHandle = (req, res, next) => {
-
-    console.log('', DateUtils.formatDate(Date.now()), 'INFO:', req.method, '-', req.url);
-
-    next();
-
-}
-
 const resNotFoundHandle = (req, res, next) => {
 
-    res.status(404).json('Not found!');
+    console.log("Not found");
+
+    res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_NOT_FOUND).json({
+        code: HttpCodeStatusUtils.HTTP_CODE_STATUS_NOT_FOUND,
+        message: 'Not found!'
+    });
 
 };
 
 const resErrorHandle = (err, req, res, next) => {
 
-    //console.error("ERROR:", err.message);
+    console.log("Error internal");
 
-    res.status(500).send({
+    res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_ERROR_INTERNAL).send({
+        code: HttpCodeStatusUtils.HTTP_CODE_STATUS_ERROR_INTERNAL,
         message: "our best engineers are working to do a better place for you!",
         errorMessage: err.message
     });
@@ -46,8 +53,8 @@ const resErrorHandle = (err, req, res, next) => {
 };
 
 module.exports = {
-    verifyAuth,
     reqHandle,
+    verifyAuth,
     resNotFoundHandle,
     resErrorHandle
 };

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const DateUtils = require('../Utils/DateUtils');
+const HttpCodeStatusUils = require('../Utils/HttpCodeStatusUtils');
 
 const config = require('config-yml');
 
@@ -10,7 +11,7 @@ const login = (user, password) => {
     if (isErrorAuthenticate) {
 
         return {
-            status: 401, 
+            status: HttpCodeStatusUils.HTTP_CODE_STATUS_UNAUTHORIZED, 
             response: "username or password not correct"
         };
 
@@ -23,7 +24,7 @@ const login = (user, password) => {
         const token = jwt.sign(JSON.stringify(payload), config.auth.secret, { algorithm: config.auth.algorithm });
 
         return {
-            status: 200, 
+            status: HttpCodeStatusUils.HTTP_CODE_STATUS_OK, 
             response: {
                 token: token,
                 expires: DateUtils.formatDateUnix(payload.exp)
@@ -36,10 +37,9 @@ const login = (user, password) => {
 
 const verify = authorization => {
     if(!authorization){
-        console.log("No auth");
 
         return {
-            status: 401,
+            status: HttpCodeStatusUils.HTTP_CODE_STATUS_UNAUTHORIZED,
             response: "Missing Authorization header."
         }
 
@@ -52,16 +52,15 @@ const verify = authorization => {
         jwt.verify(token, config.auth.secret, {algorithms: [config.auth.algorithm]});
         
         return {
-            status: 200
+            status: HttpCodeStatusUils.HTTP_CODE_STATUS_OK
         }
 
     } catch (err) {
-        console.log(err.message);
 
-        //throw new Error(err.message);
+        console.log("Error when verify auth:", err.message);
         
         return {
-            status: 401,
+            status: HttpCodeStatusUils.HTTP_CODE_STATUS_UNAUTHORIZED,
             response: err.message
         }
     }

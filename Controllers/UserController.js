@@ -3,23 +3,28 @@ const router = express.Router();
 
 const userService = require('../Services/UserService');
 
-router.post('/login', (req, res, next) => {
+const HttpCodeStatusUtils = require('../Utils/HttpCodeStatusUtils');
+
+router.post('/login', (req, res) => {
     
     const {user, password} = req.body;
 
     const {status, response} = userService.login(user, password);
 
-    const isStatusOK = status === 200;
+    const isStatusOK = status === HttpCodeStatusUtils.HTTP_CODE_STATUS_OK;
 
     if (isStatusOK) {
         
-        res.status(200).json({ response });
-        return;
+        res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_OK).json({ 
+            response 
+        });
         
     } else {
 
-        res.status(status).json({ response });
-        return;
+        res.status(status).json({ 
+            code: status, 
+            message: response 
+        });
 
     }
 
