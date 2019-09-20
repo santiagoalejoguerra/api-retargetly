@@ -9,26 +9,43 @@ const initialConfiguration = require('./Services/InitialConfigurationService');
 
 const api = require('./Routes/index.js');
 
-const port = config.port;
-
 require('events').EventEmitter.defaultMaxListeners = 15;
 
-mySqlService
-        .authenticate()
-        .then(() => {
-            console.log('Connection has been established succesfully');
+const port = config.port;
 
-            initialConfiguration.configure();
+const init = async () => {
 
-            app.use(cors());
-            app.use(bodyParser.urlencoded({ extended: false }));
-            app.use(bodyParser.json());
+    try {
 
-            app.use('/', api);
+        await initRemoteConnections();
+        await initialConfiguration.configure();
 
-            app.listen(port, console.log("Listening port", port));
+        configApp();
+    
+    } catch (err) {
+    
+        console.error('Unable to run app: ', err.message || err);
+    
+    }
 
-        })
-        .catch(err => console.error('Unable to connect to the database: ', err));
+}
 
-mySqlService.sync().then(e => console.log('syncronized!'));
+const initRemoteConnections = async ()  => {
+
+    await mySqlService.authenticate();
+    console.log('Connections has been established succesfully');
+    await mySqlService.sync().then(e => console.log('Syncronized!'));
+
+}
+
+const configApp = () => {
+
+    app.use(cors());
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
+    app.use('/', api);
+    
+    app.listen(port, console.log("Listening port", port));
+}
+
+init();

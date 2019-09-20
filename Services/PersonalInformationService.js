@@ -13,7 +13,7 @@ const saveAll = async personsInformationArray => {
     PersonInformation.bulkCreate(personsInformationArray)
     .then(() => count())
     .then((data) => {
-        console.log("Insert personsInformation count:", data);
+        console.log("Inserted personsInformation count:", data);
     });
 
 }
@@ -36,6 +36,7 @@ const destroyAll = async () => {
         where: {},
         truncate: true
     });
+    console.log("Destroyed all personInformations");
 }
 
 const count = async () => {

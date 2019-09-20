@@ -68,11 +68,11 @@ const getPersonsInformationPromise = () => new Promise(resolve => {
     inputPersonalInformation.pipe(csv.parse({
         delimiter: ',',
         columns: true
-    }).on('data', (data) => {
+    })).on('data', (data) => {
         personsInformationArray.push(data);
     }).on('end', () => {
         resolve(personsInformationArray);
-    }));
+    });
 
 });
 
