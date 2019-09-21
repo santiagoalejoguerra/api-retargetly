@@ -1,9 +1,10 @@
 port: 8080
+format_custom_response: YYYY-MM-DDTHH:mm:ss
 auth:
-  user: Santi
-  password: 123
+  user: retargetly
+  password: retargetly123
   expires: 1200
-  secret: SECRETO_PARA_ENCRIPTACION
+  secret: RETARGETLY_SECRET
   algorithm: HS256
   format_custom: YYYY-MM-DDTHH:mm:ss
 mysql:

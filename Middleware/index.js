@@ -16,8 +16,7 @@ const verifyAuth = (req, res, next) => {
 
     isStatusOK = status === HttpCodeStatusUtils.HTTP_CODE_STATUS_OK;
 
-    //if (isStatusOK) {
-    if (true) {
+    if (isStatusOK) {
 
         next();
 

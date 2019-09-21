@@ -17,21 +17,9 @@ const readFiles = async () => {
 
         const files = await sftpService.getFiles();
 
-        let fileInfo;
-
         const arrayFiles = [];
 
-        if (files !== null) {
-        
-            files.forEach(file =>  {
-                
-                fileInfo = new File(file.filename, file.attrs.size);
-        
-                arrayFiles.push(fileInfo);
-        
-            });
-
-        }
+        files.forEach(file => addFileToArray(file, arrayFiles));
 
         return arrayFiles;
 
@@ -43,11 +31,13 @@ const readFiles = async () => {
 
 }
 
+const addFileToArray = (file, arrayFiles) => arrayFiles.push(new File(file.filename, file.attrs.size));
+
 const readPersonsInformationCsv = async () => {
 
     const data = await getPersonsInformationPromise();
 
-    if (data !== null ) {
+    if (data !== null) {
 
         return data;
 
@@ -80,7 +70,7 @@ const readFileMetricsByName = async filename => {
 
     try {
 
-        //await sftpService.getFileByFilename(filename);
+        await sftpService.getFileByFilename(filename);
 
         const file = fs.createReadStream(FILES_INFORMATION_PATH + filename);
 
@@ -89,15 +79,20 @@ const readFileMetricsByName = async filename => {
     } catch (err) {
 
         console.log("Error when read file: " + err.message);
-        
+
         throw new Error(err.message);
 
     }
 
 }
 
+const removeFileLocal = filename => {
+    fs.unlink(FILES_INFORMATION_PATH + filename, () => console.log("Removed file", filename));
+}
+
 module.exports = {
     readFiles,
     getPersonsInformationFromCsv: readPersonsInformationCsv,
-    readFileMetricsByName
+    readFileMetricsByName,
+    removeFileLocal
 }

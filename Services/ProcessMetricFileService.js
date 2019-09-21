@@ -8,33 +8,35 @@ const countrySegmentMetricService = require('./CountrySegmentMetricService');
 
 const process = async (isCreatedRecetly, fileMetricToProcess) => {
 
+    const filename = fileMetricToProcess.name;
+
     if (isCreatedRecetly) {
 
-        console.log("Starting to process file", fileMetricToProcess.name);
+        console.log("Starting to process file", filename);
 
         try {
 
-            const fileMetricUpdated = await fileMetricService.updateStatusProcessById(fileMetricToProcess.id);
+            await fileMetricService.updateStatusProcessById(fileMetricToProcess.id);
 
-            if (fileMetricUpdated) {
+            console.log("Reading file from external. File", filename);
 
-                console.log("Reading file from external");
+            const fileFromExternal = await fileService.readFileMetricsByName(filename);
 
-                const fileName = fileMetricToProcess.name;
+            let segments = {};
 
-                const fileFromExternal = await fileService.readFileMetricsByName(fileName);
+            console.log("Processing file", filename);
 
-                let segments = {};
+            const segmentsProcessed = await parseFileExternal(fileFromExternal, segments, filename);
 
-                console.log("Processing file", fileName);
+            console.log("Finish process succesfully file", filename);
 
-                await parseFileExternal(fileFromExternal, segments, fileName, fileMetricToProcess);
+            await saveSegments(filename, segmentsProcessed);
 
-            } else {
+            removeFileFromPathTmp(filename);
 
-                throw new Error("Problem when update status metric to processing");
-
-            }
+            console.log("Update status to finish file", filename);
+    
+            updateStatusFinishedById(fileMetricToProcess.id);
 
         } catch (err) {
 
@@ -46,72 +48,90 @@ const process = async (isCreatedRecetly, fileMetricToProcess) => {
 
 }
 
-const parseFileExternal = (fileFromExternal, segments, fileName, fileMetricToProcess) => {
+const parseFileExternal = (fileFromExternal, segments, filename) => {
 
     return new Promise((resolve, reject) => {
 
-        fileFromExternal.on('error', async err => {
-            console.log(err);
-            //await updateStatusFailedAndMessage(fileMetricToProcess.id, err);
-            reject(err);
-        })
+        try {
+        
+            fileFromExternal.pipe(
+                csv.parse({
+                    delimiter: '\t',
+                    columns: false,
+                    quote: false
+                })).on('data', (line, encoding, next) => {
     
-        fileFromExternal.pipe(
-            csv.parse({
-                delimiter: '\t',
-                columns: false,
-                quote: false
-            })).on('data', (line, encoding, next) => {
+                    try {
     
-                const user = line[0];
-                const segmentsString = line[1];
-                const countryCode = line[2];
+                        const user = line[0];
+                        const segmentsString = line[1];
+                        const countryCode = line[2];
+            
+                        const isCodeCountryInvalid = !countryUtils.isCountryCodeValid(countryCode);
+            
+                        if (isCodeCountryInvalid) {
+                            reject({ 
+                                message: "Wrong file format" 
+                            });
+                        }
+            
+                        const segmentsArray = getSegmentsUnique(segmentsString);
+            
+                        segmentsArray.forEach(segment => {
+            
+                            const isNumberSegmentInvalid = !isIntegerPositive(segment);
+            
+                            if (isNumberSegmentInvalid) {
+                                reject({ message: "Wrong file format" });
+                            }
+            
+                            addCountryToSegment(segments, segment, countryCode);
+            
+                        });
     
-                const isCodeCountryInvalid = !countryUtils.isCountryCodeValid(countryCode);
     
-                if (isCodeCountryInvalid) {
-                    fileFromExternal.emit("error", { message: "Wrong file format" });
-                }
+                    } catch (err) {
     
-                segmentsArray = segmentsString.split(',');
+                        reject({ message: "Problem when processing file" })
     
-                segmentsArray.forEach(segment => {
-    
-                    const isNumberSegmentInvalid = !isIntegerPositive(segment);
-    
-                    if (isNumberSegmentInvalid) {
-                        fileFromExternal.emit("error", { message: "Wrong file format" });
                     }
-    
-                    addCountryToSegment(segments, segment, countryCode);
-    
+        
+                }).on("error", err => {
+
+                    console.log("Error when processing file", err);
+                    reject({ message: "Wrong file format" });
+
+                }).on('finish', () => {
+
+                    console.log("Finish pipe file", filename);
+        
+                    resolve(segments);
+                        
                 });
-            }).on('end', () => {
-    
-                try {
-    
-                    saveSegments(fileName, segments);
-    
-                    updateStatusFinishedById(fileMetricToProcess.id);
-                    
-                } catch (err) {
-                    fileFromExternal.emit("error", err);
-                }
-            });
+
+        } catch (err) {
+
+            console.log("Error when processing file", err);
+            reject({ message: "Error when processing file" });
+        }
 
     });
 
 }
 
+const getSegmentsUnique = segmentsString => [...new Set(segmentsString.split(','))]
+
 const addCountryToSegment = (segments, segment, country) => {
 
     initializeNewArrayIfEmpty(segments, segment);
-                        
+
     const countryIndex = getIndexObjectSegmentByCountry(segments[segment], country);
 
     postCountryToSegment(countryIndex, segments, segment, country);
 
 }
+
+const removeFileFromPathTmp = filename => fileService.removeFileLocal(filename);
 
 const updateStatusFinishedById = id => {
 
@@ -127,7 +147,7 @@ const initializeNewArrayIfEmpty = (segments, segment) => {
 
 const postCountryToSegment = (countryIndex, segments, segment, country) => {
 
-    isCountryMetricExists = countryIndex >= 0;
+    const isCountryMetricExists = countryIndex >= 0;
 
     if (isCountryMetricExists) {
 
@@ -140,6 +160,7 @@ const postCountryToSegment = (countryIndex, segments, segment, country) => {
             country: country,
             count: 1
         });
+
     }
 }
 
@@ -151,7 +172,7 @@ const saveSegments = async (fileName, segments) => {
 
         const fileMetricSaved = await fileMetricService.findByFilename(fileName);
 
-        saveEachSegment(segments, fileMetricSaved);
+        await saveEachSegment(segments, fileMetricSaved);
 
     } catch (err) {
 
@@ -175,7 +196,7 @@ const saveEachSegment = async (segments, fileMetricSaved) => {
 
                     const segmentSaved = await segmentFileMetricService.save(segment, fileMetricSaved.id);
 
-                    saveEachCountryMetric(segments, segment, segmentSaved);
+                    await saveEachCountryMetric(segments, segment, segmentSaved);
 
                 } catch(err) {
 

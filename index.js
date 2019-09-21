@@ -21,6 +21,8 @@ const init = async () => {
         await initialConfiguration.configure();
 
         configApp();
+
+        app.listen(port, () => console.log("Listening port", port));
     
     } catch (err) {
     
@@ -45,7 +47,6 @@ const configApp = () => {
     app.use(bodyParser.json());
     app.use('/', api);
     
-    app.listen(port, console.log("Listening port", port));
 }
 
 init();

@@ -35,8 +35,6 @@ const getMetricsByFile = async file => {
 
 const getMetricReadyFile = async fileMetric => {
 
-    console.log(FileStatus[fileMetric.status], fileMetric.status, FileStatus.READY);
-
     if (FileStatus[fileMetric.status] === FileStatus.READY) {
         
         const segmentsFromDb = await segmentFileMetricService.getSegmentsByIdFileMetric(fileMetric.id);
