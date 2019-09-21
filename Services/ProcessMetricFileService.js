@@ -1,4 +1,4 @@
-const csv = require('csv');
+const csv = require('csv-parse/lib/es5');
 const countryUtils = require('../Utils/CountryUtils');
 
 const fileService = require('./FileService');

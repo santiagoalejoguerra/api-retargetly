@@ -1,6 +1,5 @@
 const fileMetricService = require('./FileMetricService');
 const segmentFileMetricService = require('./SegmentFileMetricService');
-const countrySegmentMetricService = require('./CountrySegmentMetricService');
 const processMetricFileService = require('./ProcessMetricFileService');
 
 const FileStatus = require('../Models/FileStatus')

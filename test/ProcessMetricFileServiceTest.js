@@ -1,7 +1,7 @@
+const processMetricFileService = require('../Services/ProcessMetricFileService');
 const { expect } = require('chai');
-const metricService = require('../Services/MetricService');
 
-describe("MetricService tests:", () => {
+describe("ProcessMetricFileService tests:", () => {
 
     describe("Check addCountryToSegment function:", () => {
 
@@ -9,14 +9,14 @@ describe("MetricService tests:", () => {
 
             const segments = [];
             const segment = "132";
-            const country = "AR";
+            const country = "AR"; 
 
             const expectResult = [{
                     country: "AR",
                     count: 1
             }]
 
-            metricService.addCountryToSegment(segments, segment, country);
+            processMetricFileService.addCountryToSegment(segments, segment, country);
 
             expect(segments[segment]).to.eql(expectResult);
             expect(segments).to.have.keys("132");
@@ -40,7 +40,7 @@ describe("MetricService tests:", () => {
                     count: 2
             }]
 
-            metricService.addCountryToSegment(segments, segment, country);
+            processMetricFileService.addCountryToSegment(segments, segment, country);
 
             expect(segments[segment]).to.eql(expectResult);
             expect(segments).to.have.keys("132");
@@ -67,7 +67,7 @@ describe("MetricService tests:", () => {
                     count: 1
                 }]
 
-            metricService.addCountryToSegment(segments, segment, country);
+                processMetricFileService.addCountryToSegment(segments, segment, country);
 
             expect(segments[segment]).to.eql(expectResult);
             expect(segments).to.have.keys("132");
