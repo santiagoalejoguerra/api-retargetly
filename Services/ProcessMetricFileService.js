@@ -1,4 +1,4 @@
-const csv = require('csv-parse/lib/es5');
+const csv = require('csv');
 const countryUtils = require('../Utils/CountryUtils');
 
 const fileService = require('./FileService');
@@ -36,7 +36,7 @@ const process = async (isCreatedRecetly, fileMetricToProcess) => {
 
             console.log("Update status to finish file", filename);
     
-            updateStatusFinishedById(fileMetricToProcess.id);
+            await updateStatusFinishedById(fileMetricToProcess.id);
 
         } catch (err) {
 
@@ -172,7 +172,13 @@ const saveSegments = async (fileName, segments) => {
 
         const fileMetricSaved = await fileMetricService.findByFilename(fileName);
 
-        await saveEachSegment(segments, fileMetricSaved);
+        const savedSegments = await saveEachSegment(segments, fileMetricSaved);
+
+        if (savedSegments) {
+
+            console.log("isSaved", savedSegments);
+
+        }
 
     } catch (err) {
 
@@ -190,24 +196,13 @@ const saveEachSegment = async (segments, fileMetricSaved) => {
 
         try {
 
-            Object.keys(segments).forEach(async (segment) => {
+            await Promise.all(Object.keys(segments).map(async (segment) => {
 
-                try {
+                const segmentSaved = await segmentFileMetricService.save(segment, fileMetricSaved.id);
 
-                    const segmentSaved = await segmentFileMetricService.save(segment, fileMetricSaved.id);
-
-                    await saveEachCountryMetric(segments, segment, segmentSaved);
-
-                } catch(err) {
-
-                    console.log(err);
-
-                    throw err;
-
-                }
+                await saveEachCountryMetric(segments, segment, segmentSaved);
                 
-                
-            });
+            }));
 
         } catch (err) {
 
@@ -234,11 +229,12 @@ const saveEachCountryMetric = async (segments, segment, segmentSaved) => {
 
         try {
 
-            segments[segment].forEach(async (countryMetric) => {
+            await Promise.all(segments[segment].map(async (countryMetric) => {
 
-                    await countrySegmentMetricService.save(countryMetric.country, countryMetric.count, segmentSaved.id);
+                await countrySegmentMetricService.save(countryMetric.country, countryMetric.count, segmentSaved.id);
                 
-            });
+                })
+            );
         
         } catch (err) {
 

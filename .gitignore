@@ -64,7 +64,7 @@ typings/
 .next
 
 # resources file
-Resources/files/
+Resources/files/*
 
 # intellij idea
 .idea/

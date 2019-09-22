@@ -11,26 +11,26 @@ const LIMIT_DEFAULT = "10";
 
 router.get('/data', async (req, res, next) => {
 
-    const query = req.query;
-    const { sort, sortField } = query;
-    const fields = query.fields ? JSON.parse(query.fields) : FIELDS;
-    const limit = query.limit || LIMIT_DEFAULT;
-
-    const isInvalidParams =
-        isInvalidParamSort(sort) ||
-        isInvalidParamSortField(sortField) ||
-        isInvalidParamFields(fields) ||
-        isInvalidParamLimit(limit);
-
-    if (isInvalidParams) {
-
-        res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_BAD_REQUEST).json("Bad request");
-
-        return;
-
-    }
-
     try {
+
+        const query = req.query;
+        const { sort, sortField } = query;
+        const fields = query.fields ? JSON.parse(query.fields) : FIELDS;
+        const limit = query.limit || LIMIT_DEFAULT;
+
+        const isInvalidParams =
+            isInvalidParamSort(sort) ||
+            isInvalidParamSortField(sortField) ||
+            isInvalidParamFields(fields) ||
+            isInvalidParamLimit(limit);
+
+        if (isInvalidParams) {
+
+            res.status(HttpCodeStatusUtils.HTTP_CODE_STATUS_BAD_REQUEST).json("Bad request");
+
+            return;
+
+        }
 
         const personsInformation = await personInformationService.getByQuery(sort, sortField, fields, Number(limit));
 

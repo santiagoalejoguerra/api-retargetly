@@ -7,13 +7,13 @@ const FileStatus = require('../Models/FileStatus')
 const getMetricsByFile = async file => {
 
     try {
-    
-        const fileMetricArray = await fileMetricService.findOrCreateByFilename(file);
 
-        if (fileMetricArray) {
+        const fileMetricNewArray = await fileMetricService.findOrCreateByFilename(file);
 
-            fileMetric = fileMetricArray[0];
-            createdRecetly = fileMetricArray[1]; 
+        if (fileMetricNewArray) {
+            
+            const fileMetric = fileMetricNewArray[0];
+            const createdRecetly = fileMetricNewArray[1]; 
 
             processMetricFileService.process(createdRecetly, fileMetric);
 

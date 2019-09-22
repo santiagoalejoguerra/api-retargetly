@@ -9,6 +9,8 @@ router.post('/login', (req, res) => {
     
     const {user, password} = req.body;
 
+    console.log(user, password);
+
     const {status, response} = userService.login(user, password);
 
     const isStatusOK = status === HttpCodeStatusUtils.HTTP_CODE_STATUS_OK;

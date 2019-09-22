@@ -1,5 +1,5 @@
 const fs = require('fs');
-const csv = require('csv-parse/lib/es5');
+const csv = require('csv');
 
 const sftpService = require('../RemoteServices/SftpService');
 
