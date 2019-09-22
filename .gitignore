@@ -63,8 +63,5 @@ typings/
 # next.js build output
 .next
 
-# resources file
-Resources/files/*
-
 # intellij idea
 .idea/
