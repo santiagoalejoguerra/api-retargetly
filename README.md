@@ -2,11 +2,14 @@
 
 ## Versions
 Tools versions at the time I was developing the project:
-    ```text
-    npm: 6.9.0
-    node: 10.16.0
-    Mysql: 10.1.38-MariaDB-0+deb9u1
-    ```
+    $ node --version
+    v10.16.0
+
+    $ npm --version
+    6.9.0
+    
+    $ mysql --version
+    mysql  Ver 15.1 Distrib 10.1.38-MariaDB, for debian-linux-gnu (x86_64) using readline 5.2
 
 ## Get started
 To run the project, simply follow the steps below:
