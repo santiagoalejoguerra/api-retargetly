@@ -1,12 +1,12 @@
 const CountrySegmentMetric = require('../Schemas/CountrySegmentMetric');
 
-const save = async (country, count, idSegment) => {
+const save = async (country, count, idSegment, resolve) => {
 
-    return await CountrySegmentMetric.create({
+    CountrySegmentMetric.create({
         country: country,
         count: count,
         segmentFileMetricId: idSegment
-    });
+    }).then(() => resolve());
 
 }
 

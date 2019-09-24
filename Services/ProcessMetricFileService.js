@@ -30,13 +30,17 @@ const process = async (isCreatedRecetly, fileMetricToProcess) => {
 
             console.log("Finish process succesfully file", filename);
 
-            await saveSegments(filename, segmentsProcessed);
+            const callbackFinishProcess = () => {
 
-            removeFileFromPathTmp(filename);
+                removeFileFromPathTmp(filename);
 
-            console.log("Update status to finish file", filename);
+                console.log("Update status to finish file", filename);
     
-            await updateStatusFinishedById(fileMetricToProcess.id);
+                updateStatusFinishedById(fileMetricToProcess.id);
+
+            }
+
+            saveSegments(filename, segmentsProcessed, callbackFinishProcess);
 
         } catch (err) {
 
@@ -164,7 +168,7 @@ const postCountryToSegment = (countryIndex, segments, segment, country) => {
     }
 }
 
-const saveSegments = async (fileName, segments) => {
+const saveSegments = async (fileName, segments, callback) => {
 
     console.log("Finish process to file", fileName);
 
@@ -172,13 +176,7 @@ const saveSegments = async (fileName, segments) => {
 
         const fileMetricSaved = await fileMetricService.findByFilename(fileName);
 
-        const savedSegments = await saveEachSegment(segments, fileMetricSaved);
-
-        if (savedSegments) {
-
-            console.log("isSaved", savedSegments);
-
-        }
+        saveEachSegment(segments, fileMetricSaved, callback);
 
     } catch (err) {
 
@@ -190,19 +188,21 @@ const saveSegments = async (fileName, segments) => {
 
 }
 
-const saveEachSegment = async (segments, fileMetricSaved) => {
+const saveEachSegment = (segments, fileMetricSaved, callback) => {
 
     if (fileMetricSaved) {
 
         try {
 
-            await Promise.all(Object.keys(segments).map(async (segment) => {
+            Promise.all(Object.keys(segments).map(async (segment) => {
 
                 const segmentSaved = await segmentFileMetricService.save(segment, fileMetricSaved.id);
 
-                await saveEachCountryMetric(segments, segment, segmentSaved);
+                return new Promise(resolve => {
+                    saveEachCountryMetric(segments, segment, segmentSaved, resolve);
+                });
                 
-            }));
+            })).then(() => callback());
 
         } catch (err) {
 
@@ -223,18 +223,20 @@ const saveEachSegment = async (segments, fileMetricSaved) => {
     }
 }
 
-const saveEachCountryMetric = async (segments, segment, segmentSaved) => {
+const saveEachCountryMetric = async (segments, segment, segmentSaved, resolve) => {
 
     if (segmentSaved) {
 
         try {
 
-            await Promise.all(segments[segment].map(async (countryMetric) => {
+            Promise.all(segments[segment].map(async (countryMetric) => {
 
-                await countrySegmentMetricService.save(countryMetric.country, countryMetric.count, segmentSaved.id);
+                return new Promise(resolve => {
+                    countrySegmentMetricService.save(countryMetric.country, countryMetric.count, segmentSaved.id, resolve);
+                });
                 
                 })
-            );
+            ).then(() => resolve());
         
         } catch (err) {
 
